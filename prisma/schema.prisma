@@ -1,0 +1,137 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  USER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(ADMIN)
+  status    String   @default("Actif")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  articles  Article[]
+}
+
+model Program {
+  id              String    @id @default(uuid())
+  slug            String    @unique
+  title           String
+  subtitle        String?
+  startDate       DateTime?
+  endDate         DateTime?
+  datesListText   String?
+  montrealTime    String?
+  parisTime       String?
+  location        String?
+  replayNotice    String?
+  priceLabel      String?
+  freeOptionText  String?
+  freeOptionLink  String?
+  englishNotice   String?
+  englishLink     String?
+  mainButtonLabel String?   @default("Je veux participer")
+  zeffyUrl        String?
+  type            String    @default("Présentiel")
+  bannerImage     String?
+  secondaryImage  String?
+  description     String
+  link            String?
+  clicks          Int       @default(0)
+  visible         Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model PageContent {
+  id          String   @id @default(uuid())
+  pageKey     String   @unique // "home" | "about" | "gite" | "programs"
+  contentJson String   // JSON stringified fields & image URLs
+  updatedAt   DateTime @updatedAt
+}
+
+model Article {
+  id          String     @id @default(uuid())
+  title       String
+  slug        String     @unique
+  content     String
+  image       String?
+  published   Boolean    @default(false)
+  categoryId  String
+  category    Category   @relation(fields: [categoryId], references: [id])
+  authorId    String
+  author      User       @relation(fields: [authorId], references: [id])
+  seoTitle    String?
+  seoDesc     String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  slug      String    @unique
+  articles  Article[]
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  date        DateTime
+  location    String
+  createdAt   DateTime @default(now())
+}
+
+model Gallery {
+  id          String   @id @default(uuid())
+  imageUrl    String
+  caption     String?
+  category    String?
+  createdAt   DateTime @default(now())
+}
+
+model Donation {
+  id        String   @id @default(uuid())
+  amount    Float
+  donorName String
+  email     String
+  status    String   // "pending" | "completed"
+  createdAt DateTime @default(now())
+}
+
+model Newsletter {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

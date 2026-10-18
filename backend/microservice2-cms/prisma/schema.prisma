@@ -1,0 +1,150 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_CMS_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum PageStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AccessLevel {
+  PUBLIC
+  PRIVATE
+  PASSWORD_PROTECTED
+  ROLE_PROTECTED
+}
+
+model Page {
+  id                 String         @id @default(uuid())
+  title              String
+  slug               String         @unique
+  fullPath           String         @unique
+  parentId           String?
+  status             PageStatus     @default(DRAFT)
+  accessLevel        AccessLevel    @default(PUBLIC)
+  password           String?
+  allowedRoles       String[]       @default([])
+  publishAt          DateTime?
+  unpublishAt        DateTime?
+  publishedAt        DateTime?
+  locale             String         @default("fr") // fr | en | ar
+  translationGroupId String?
+  sections           PageSection[]
+  versions           PageVersion[]
+  seo                SeoMetadata?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+}
+
+model PageSection {
+  id              String             @id @default(uuid())
+  pageId          String
+  page            Page               @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  orderIndex      Int
+  name            String
+  sectionType     String             // hero | grid | text-image | gallery | form | custom
+  isGlobal        Boolean            @default(false)
+  globalSectionId String?
+  stylesDesktop   Json               @default("{}")
+  stylesTablet    Json               @default("{}")
+  stylesMobile    Json               @default("{}")
+  hiddenDevices   String[]           @default([])
+  components      SectionComponent[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model SectionComponent {
+  id            String      @id @default(uuid())
+  sectionId     String
+  section       PageSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  orderIndex    Int
+  componentType String      // heading | paragraph | button | image | video | list | html | form
+  contentData   Json        @default("{}")
+  styles        Json        @default("{}")
+  isReusable    Boolean     @default(false)
+}
+
+model Media {
+  id           String   @id @default(uuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  cdnUrl       String?
+  folderPath   String   @default("/")
+  altText      String?
+  caption      String?
+  width        Int?
+  height       Int?
+  cropMetadata Json?
+  tags         String[] @default([])
+  createdAt    DateTime @default(now())
+}
+
+model PageVersion {
+  id            String   @id @default(uuid())
+  pageId        String
+  page          Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  versionNumber Int
+  snapshotData  Json
+  createdById   String   @default("system")
+  changeSummary String?
+  createdAt     DateTime @default(now())
+}
+
+model Form {
+  id                String           @id @default(uuid())
+  name              String
+  title             String
+  description       String?
+  fields            Json             @default("[]")
+  notificationEmail String?
+  submissions       FormSubmission[]
+  createdAt         DateTime         @default(now())
+}
+
+model FormSubmission {
+  id            String   @id @default(uuid())
+  formId        String
+  form          Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  submittedData Json
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+}
+
+model SeoMetadata {
+  id              String   @id @default(uuid())
+  pageId          String   @unique
+  page            Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  seoTitle        String
+  metaDescription String
+  keywords        String[] @default([])
+  canonicalUrl    String?
+  ogTitle         String?
+  ogDescription   String?
+  ogImage         String?
+  robots          String   @default("index, follow")
+  schemaJsonLd    Json?
+  healthScore     Int      @default(100)
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String
+  userEmail  String
+  action     String
+  resourceId String?
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+}

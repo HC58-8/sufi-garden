@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Service
+  postgres:
+    image: postgres:15-alpine
+    container_name: sufigarden_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: sufi_admin
+      POSTGRES_PASSWORD: sufi_secret_password_2026
+      POSTGRES_DB: sufigarden_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. NestJS Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sufigarden_backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: "postgresql://sufi_admin:sufi_secret_password_2026@postgres:5432/sufigarden_db?schema=public"
+      PORT: 3001
+      JWT_SECRET: "sufi_garden_jwt_super_secret_key_2026"
+    depends_on:
+      - postgres
+
+  # 3. Next.js Frontend Web Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sufigarden_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:3001"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FAF8F5;
+  --foreground: #2C2C2C;
+  --primary: #1C2E24;
+  --primary-foreground: #FAF8F5;
+  --accent: #C5A880;
+  --accent-foreground: #2C2C2C;
+  --card: #FFFFFF;
+  --card-foreground: #2C2C2C;
+  --border: #E5E5E5;
+  --font-playfair: 'Playfair Display', serif;
+  --font-inter: 'Inter', sans-serif;
+}
+
+.dark {
+  --background: #121F18;
+  --foreground: #F6F2EB;
+  --primary: #F6F2EB;
+  --primary-foreground: #1C2E24;
+  --accent: #C5A880;
+  --accent-foreground: #121F18;
+  --card: #1C2E24;
+  --card-foreground: #F6F2EB;
+  --border: #2A4537;
+}
+
+body {
+  color: var(--foreground);
+  background-color: var(--background);
+  font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+/* Glassmorphism Classes */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(197, 168, 128, 0.2);
+}
+
+.dark .glass {
+  background: rgba(28, 46, 36, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(197, 168, 128, 0.1);
+}
+
+/* Islamic grid alignment helper */
+.islamic-bg {
+  background-image: 
+    radial-gradient(var(--accent) 1px, transparent 1px),
+    radial-gradient(var(--accent) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+  opacity: 0.04;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
